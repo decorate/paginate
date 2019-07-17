@@ -1,9 +1,9 @@
 {
-  "name": "@team-decorate/example",
+  "name": "@team-decorate/paginate",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/example.common.js",
-  "unpkg": "dist/example.umd.js",
+  "main": "dist/paginate.common.js",
+  "unpkg": "dist/paginate.umd.js",
   "files": [
     "src",
     "dist"
@@ -16,10 +16,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/decorate/vue-searchable.git"
+    "url": "git+https://github.com/decorate/paginate.git"
   },
   "keywords": [
-    "example"
+    "paginate"
   ],
   "author": "",
   "license": "MIT",
@@ -35,8 +35,10 @@
     "axios-mock-adapter": "^1.13.1",
     "babel-core": "^7.0.0-bridge.0",
     "babel-plugin-require-context-hook": "^1.0.0",
+    "flush-promises": "^1.0.2",
     "linq": "^3.2.0",
     "vue": "^2.6.10",
+    "vue-infinite-scroll": "^2.0.2",
     "vue-template-compiler": "^2.6.10",
     "vuex": "^3.1.1"
   },

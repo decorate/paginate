@@ -1,49 +1,81 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils'
-import Searchable from '../src/components/Example.vue'
-import VueRouter from 'vue-router'
+import { shallowMount } from '@vue/test-utils'
+import Example from '../src/components/SimplePaginate.vue'
+import flushPromises from 'flush-promises'
+import linq from 'linq'
+import MockAdapter from 'axios-mock-adapter'
 import axios from 'axios'
-jest.mock('axios')
-
-const localVue = createLocalVue()
-localVue.use(VueRouter)
-
-let actual, expected
 
 describe('test', () => {
 
-    let router
-    const getLabel = (wrap) => {
-        return wrap.find('label').text()
+    let wrap
+    const findByValue = (selector, text) => {
+        const w = wrap.findAll(selector)
+        return linq.range(0, w.length)
+            .where(x => w.at(x).text() === text)
+            .select(x => w.at(x))
+            .first()
     }
 
-    let create
-
     beforeEach(() => {
-        router = new VueRouter({query: {paginate: '15'}})
+        const mock = new MockAdapter(axios)
 
-        create = (prop) => {
-            return shallowMount(Searchable, {
-                propsData: {searches: [prop]},
-                localVue,
-                router
-            })
-        }
+        wrap = shallowMount(Example, {
+            propsData: {
+                mock: mock
+            }
+        })
     })
 
-    it('select maximum parameter', async () => {
-        axios.get.mockImplementation(() => Promise.resolve({data: [
-                {value: 0, text: 'user'},
-                {value: 1, text: 'cast'},
-            ]}))
-        const prop = {select: 'user.type', fetch: true, key: 'user_type', label: 'タイプ', text: 'text', value: 'value'}
+    it('first view check', async () => {
+        await flushPromises()
 
-        const wrap = create(prop)
-        await wrap.vm.$nextTick()
+        expect(wrap.text()).toMatch('test1')
 
-        const options = wrap.findAll('option')
-        expect(options.at(0).text()).toBe('--選択--')
-        expect(options.at(1).text()).toBe('user')
-        expect(options.at(2).text()).toBe('cast')
+        expect(wrap.findAll('li').at(0).classes()).toContain('disabled')
+        expect(wrap.findAll('li').at(1).classes()).toContain('active')
+        expect(wrap.findAll('li').at(1).text()).toMatch('1')
+        expect(wrap.findAll('li').at(2).text()).toMatch('2')
+        expect(wrap.findAll('li').at(3).text()).toMatch('3')
+        expect(wrap.findAll('li').at(4).classes()).not.toContain('disabled')
+    })
+
+    it('click paginate num button check', async () => {
+        await flushPromises()
+        const button = findByValue('button', '2')
+        button.trigger('click')
+        await flushPromises()
+        expect(wrap.text()).toMatch('test4')
+    })
+
+    it('click paginate next button check', async () => {
+        await flushPromises()
+        const button = findByValue('button', '次へ')
+
+        button.trigger('click')
+        await flushPromises()
+        expect(wrap.text()).toMatch('test4')
+
+        button.trigger('click')
+        await flushPromises()
+        expect(wrap.text()).toMatch('test7')
+
+        button.trigger('click')
+        await flushPromises()
+        expect(wrap.text()).toMatch('test11')
+
+        button.trigger('click')
+        await flushPromises()
+        expect(wrap.text()).toMatch('test14')
+        expect(wrap.findAll('li').at(4).classes()).toContain('disabled')
+    })
+
+    it('before button class check', async () => {
+        await flushPromises()
+        const button = findByValue('button', '次へ')
+        button.trigger('click')
+        await flushPromises()
+        const li = wrap.findAll('li').at(0)
+        expect(li.classes()).not.toContain('disabled')
     })
 
 })

@@ -1,8 +1,8 @@
 import '@babel/polyfill'
 
-import EX from './components/Example'
+import Paginate from './models/Paginate'
 
 export {
-    EX,
-    EX as default
+    Paginate,
+    Paginate as default
 }
